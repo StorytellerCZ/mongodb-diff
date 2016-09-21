@@ -1,7 +1,7 @@
 {
-  "name": "mongodb-diff",
+  "name": "@deanius/mongodb-diff",
   "version": "0.1.0",
-  "description": "Creates the MongoDB update query by diffing two objects.",
+  "description": "Creates the MongoDB update query by diffing two objects. Credit: xolvio",
   "scripts": {
     "prepublish": ". ./scripts/prepublish.sh",
     "lint": "eslint ./src",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xolvio/mongodb-diff.git"
+    "url": "git+https://github.com/deanius/mongodb-diff.git"
   },
   "keywords": [],
   "author": "Jonas Aschenbrenner",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xolvio/mongodb-diff/issues"
+    "url": "https://github.com/deanius/mongodb-diff/issues"
   },
-  "homepage": "https://github.com/xolvio/mongodb-diff#readme",
+  "homepage": "https://github.com/deanius/mongodb-diff#readme",
   "dependencies": {
     "babel-runtime": "6.x.x",
     "deep-diff": "^0.3.3",
