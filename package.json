@@ -1,5 +1,5 @@
 {
-  "name": "@deanius/mongodb-diff",
+  "name": "mongodb-diff",
   "version": "0.1.0",
   "description": "Creates the MongoDB update query by diffing two objects. Credit: xolvio",
   "scripts": {
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/deanius/mongodb-diff#readme",
   "dependencies": {
     "babel-runtime": "6.x.x",
-    "deep-diff": "^0.3.3",
+    "deep-diff": "^0.3.4",
     "lodash": "^4.0.0"
   },
   "devDependencies": {
