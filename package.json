@@ -1,7 +1,11 @@
 {
   "name": "mongodb-diff",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Creates the MongoDB update query by diffing two objects. Credit: xolvio",
+  "files": [
+    "index.js",
+    "./dist/index.js"
+  ],
   "scripts": {
     "prepublish": ". ./scripts/prepublish.sh",
     "lint": "eslint ./src",
