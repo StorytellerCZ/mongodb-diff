@@ -1,8 +1,18 @@
 import {diff as deepDiff} from 'deep-diff';
-import _ from 'lodash';
+import { last, isNumber } from 'lodash';
+
+const get = (obj, path, defaultValue = undefined) => {
+  const travel = regexp =>
+    String.prototype.split
+      .call(path, regexp)
+      .filter(Boolean)
+      .reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj);
+  const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/);
+  return result === undefined || result === obj ? defaultValue : result;
+};
 
 function getProperty(object, path) {
-  return _.get(object, path);
+  return get(object, path);
 }
 
 function getPropertyPath(changeDiff) {
@@ -14,7 +24,7 @@ function pathToString(path) {
 }
 
 function isArrayIndexPath(path) {
-  return _.isNumber(_.last(path));
+  return isNumber(last(path));
 }
 
 function isPropertyRemove(change) {
@@ -33,7 +43,7 @@ function isArrayPush(change) {
 function isArrayPull(change) {
   if (change.diff.kind === 'A' && change.diff.item.kind === 'D') {
     const array = getProperty(change.rhs, change.diff.path);
-    if (!array || !_.includes(array, change.diff.item.lhs)) {
+    if (!array || !array.includes(change.diff.item.lhs)) {
       return true;
     }
   }
@@ -106,7 +116,7 @@ function createChangeHandler(check, updater) {
 }
 
 function applyChangeHandlers(changeHandlers, update, change) {
-  _.every(changeHandlers, (changeHandler) => !changeHandler(update, change));
+  changeHandlers.every((changeHandler) => !changeHandler(update, change));
 }
 
 const changeHandlers = [
@@ -153,12 +163,12 @@ const changeHandlers = [
   ),
 ];
 
-const applyTheChangeHandlers = _.partial(applyChangeHandlers, changeHandlers);
+const partial = (func, ...boundArgs) => (...remainingArgs) => func(...boundArgs, ...remainingArgs);
+const applyTheChangeHandlers = partial(applyChangeHandlers, changeHandlers);
 
 export function diff(lhs, rhs) {
   const theDiff = deepDiff(lhs, rhs);
-  return _.reduce(
-    theDiff,
+  return theDiff.reduce(
     (update, changeDiff) => {
       applyTheChangeHandlers(update, {lhs, rhs, diff: changeDiff});
       return update;
