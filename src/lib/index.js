@@ -1,5 +1,7 @@
 import {diff as deepDiff} from 'deep-diff';
-import { last, isNumber } from 'lodash';
+ // Replaced lodash usage with lightweight native helpers
+ const last = (arr) => Array.isArray(arr) ? arr[arr.length - 1] : undefined;
+ const isNumber = (value) => typeof value === 'number' || value instanceof Number;
 
 const get = (obj, path, defaultValue = undefined) => {
   const travel = regexp =>
