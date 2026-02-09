@@ -1,14 +1,13 @@
 import {diff as deepDiff} from 'deep-diff';
- // Replaced lodash usage with lightweight native helpers
- const last = (arr) => Array.isArray(arr) ? arr[arr.length - 1] : undefined;
- const isNumber = (value) => typeof value === 'number' || value instanceof Number;
+// Replaced lodash usage with lightweight native helpers
+const last = (arr) => (Array.isArray(arr) ? arr[arr.length - 1] : undefined);
+const isNumber = (value) => typeof value === 'number' || value instanceof Number;
 
 const get = (obj, path, defaultValue = undefined) => {
-  const travel = regexp =>
-    String.prototype.split
-      .call(path, regexp)
-      .filter(Boolean)
-      .reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj);
+  const travel = (regexp) => String.prototype.split
+    .call(path, regexp)
+    .filter(Boolean)
+    .reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj);
   const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/);
   return result === undefined || result === obj ? defaultValue : result;
 };
@@ -34,8 +33,8 @@ function isPropertyRemove(change) {
 }
 
 function isPropertyUpdate(change) {
-  return (change.diff.kind === 'E' || change.diff.kind === 'N') &&
-    !isArrayIndexPath(change.diff.path);
+  return (change.diff.kind === 'E' || change.diff.kind === 'N')
+    && !isArrayIndexPath(change.diff.path);
 }
 
 function isArrayPush(change) {
@@ -55,58 +54,48 @@ function isArrayPull(change) {
 
 function isArrayUpdate(change) {
   return change.diff.kind === 'A' || (
-    (change.diff.kind === 'E' || change.diff.kind === 'N') &&
-    isArrayIndexPath(change.diff.path)
+    (change.diff.kind === 'E' || change.diff.kind === 'N')
+    && isArrayIndexPath(change.diff.path)
   );
 }
 
+/* eslint-disable no-param-reassign */
 function setProperty(update, propertyPath, value) {
-  if (!update.$set) {
-    update.$set = {};
-  }
+  if (!update.$set) { update.$set = {}; }
   update.$set[propertyPath] = value;
 }
 
 function unsetProperty(update, propertyPath) {
-  if (!update.$unset) {
-    update.$unset = {};
-  }
+  if (!update.$unset) { update.$unset = {}; }
   update.$unset[propertyPath] = true;
 }
 
 function push(update, propertyPath, value) {
-  if (!update.$push) {
-    update.$push = {};
-  }
+  if (!update.$push) { update.$push = {}; }
   if (!update.$push[propertyPath]) {
     update.$push[propertyPath] = value;
+  } else if (update.$push[propertyPath].$each) {
+    update.$push[propertyPath].$each.push(value);
   } else {
-    if (update.$push[propertyPath].$each) {
-      update.$push[propertyPath].$each.push(value);
-    } else {
-      update.$push[propertyPath] = {
-        $each: [update.$push[propertyPath], value],
-      };
-    }
+    update.$push[propertyPath] = {
+      $each: [update.$push[propertyPath], value],
+    };
   }
 }
 
 function pull(update, propertyPath, value) {
-  if (!update.$pull) {
-    update.$pull = {};
-  }
+  if (!update.$pull) { update.$pull = {}; }
   if (!update.$pull[propertyPath]) {
     update.$pull[propertyPath] = value;
+  } else if (update.$pull[propertyPath].$each) {
+    update.$pull[propertyPath].$each.push(value);
   } else {
-    if (update.$pull[propertyPath].$each) {
-      update.$pull[propertyPath].$each.push(value);
-    } else {
-      update.$pull[propertyPath] = {
-        $each: [update.$pull[propertyPath], value],
-      };
-    }
+    update.$pull[propertyPath] = {
+      $each: [update.$pull[propertyPath], value],
+    };
   }
 }
+/* eslint-enable no-param-reassign */
 
 function createChangeHandler(check, updater) {
   return function changeHandler(update, change) {
@@ -114,6 +103,7 @@ function createChangeHandler(check, updater) {
       updater(update, change);
       return true;
     }
+    return false;
   };
 }
 
@@ -126,13 +116,13 @@ const changeHandlers = [
     isPropertyUpdate,
     (update, change) => {
       setProperty(update, getPropertyPath(change.diff), change.diff.rhs);
-    }
+    },
   ),
   createChangeHandler(
     isPropertyRemove,
     (update, change) => {
       unsetProperty(update, getPropertyPath(change.diff));
-    }
+    },
   ),
   createChangeHandler(
     isArrayPush,
@@ -140,28 +130,28 @@ const changeHandlers = [
       if (!(update.$set && update.$set[getPropertyPath(change.diff)])) {
         push(update, getPropertyPath(change.diff), change.diff.item.rhs);
       }
-    }
+    },
   ),
   createChangeHandler(
     isArrayPull,
     (update, change) => {
       pull(update, getPropertyPath(change.diff), change.diff.item.lhs);
-    }
+    },
   ),
   createChangeHandler(
     isArrayUpdate,
     (update, change) => {
-      const propertyPathAsArray = isArrayIndexPath(change.diff.path) ?
-        change.diff.path.slice(0, -1) : change.diff.path;
+      const propertyPathAsArray = isArrayIndexPath(change.diff.path)
+        ? change.diff.path.slice(0, -1) : change.diff.path;
       const propertyPath = pathToString(propertyPathAsArray);
       setProperty(update, propertyPath, getProperty(change.rhs, propertyPathAsArray));
-    }
+    },
   ),
   createChangeHandler(
     () => true,
     (update, change) => {
-      throw new Error('Unhandled change: ' + JSON.stringify(change));
-    }
+      throw new Error(`Unhandled change: ${JSON.stringify(change)}`);
+    },
   ),
 ];
 
@@ -169,12 +159,12 @@ const partial = (func, ...boundArgs) => (...remainingArgs) => func(...boundArgs,
 const applyTheChangeHandlers = partial(applyChangeHandlers, changeHandlers);
 
 export function diff(lhs, rhs) {
-  const theDiff = deepDiff(lhs, rhs);
+  const theDiff = (deepDiff(lhs, rhs) || []).slice().reverse();
   return theDiff.reduce(
     (update, changeDiff) => {
       applyTheChangeHandlers(update, {lhs, rhs, diff: changeDiff});
       return update;
     },
-    {}
+    {},
   );
 }

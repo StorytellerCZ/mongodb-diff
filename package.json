@@ -1,16 +1,16 @@
 {
   "name": "@freedombase/mongodb-diff",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Creates the MongoDB update query by diffing two objects. Credit: xolvio",
   "files": [
     "index.js",
     "dist/lib/index.js"
   ],
   "scripts": {
-    "prepublish": ". ./scripts/prepublish.sh",
-    "lint": "eslint ./src",
-    "lintfix": "eslint ./src --fix",
-    "testonly": "jasmine JASMINE_CONFIG_PATH=src/spec/support/jasmine.json",
+    "prepack": ". ./scripts/prepublish.sh",
+    "lint": "eslint \"src/**/*.js\"",
+    "lintfix": "eslint \"src/**/*.js\" --fix",
+    "testonly": "jest",
     "test": "npm run lint && npm run testonly"
   },
   "repository": {
@@ -25,19 +25,16 @@
   },
   "homepage": "https://github.com/deanius/mongodb-diff#readme",
   "dependencies": {
-    "babel-runtime": "6.x.x",
-    "deep-diff": "^0.3.8"
+    "deep-diff": "^1.0.2"
   },
   "devDependencies": {
-    "babel-cli": "6.x.x",
-    "babel-core": "6.x.x",
-    "babel-plugin-transform-runtime": "6.x.x",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-es2015": "6.x.x",
-    "babel-preset-stage-2": "6.x.x",
-    "eslint": "^1.10.3",
-    "eslint-config-airbnb": "^2.1.1",
-    "eslint-plugin-babel": "^3.3.0",
-    "jasmine": "^2.99.0"
+    "@babel/core": "^7.26.0",
+    "@babel/cli": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "jest": "^29.7.0"
   }
 }

@@ -1,15 +1,26 @@
 {
-  "extends": "airbnb/base",
+  "extends": "airbnb-base",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
   "env": {
     "node": true,
     "es6": true
   },
-  "globals": {
-    "require": false,
-    "_": false
-  },
+  "globals": {},
   "rules": {
     "object-curly-spacing": 0,
-    "no-use-before-define": [2, "nofunc"]
+    "no-use-before-define": [2, "nofunc"],
+    "import/prefer-default-export": 0,
+    "import/no-extraneous-dependencies": [
+      2,
+      {
+        "devDependencies": [
+          "**/src/spec/**",
+          "**/*[sS]pec.js"
+        ]
+      }
+    ]
   }
 }
